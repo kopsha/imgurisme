@@ -16,7 +16,6 @@ def exec(command):
 
 
 class ImmutableData(dict):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__dict__ = self
@@ -25,15 +24,15 @@ class ImmutableData(dict):
         return id(self)
 
     def _immutable_error(self, *args, **kws):
-        raise TypeError('Cannot modify immutable data')
+        raise TypeError("Cannot modify immutable data")
 
     __setitem__ = _immutable_error
     __delitem__ = _immutable_error
-    clear       = _immutable_error
-    update      = _immutable_error
-    setdefault  = _immutable_error
-    pop         = _immutable_error
-    popitem     = _immutable_error
+    clear = _immutable_error
+    update = _immutable_error
+    setdefault = _immutable_error
+    pop = _immutable_error
+    popitem = _immutable_error
 
 
 class ImgurClient:
@@ -51,14 +50,16 @@ class ImgurClient:
             auth_cache.read(self.AUTH_CACHE)
         else:
             # create empty file
-            empty_credentials = dict(client_id = "", client_secret = "")
+            empty_credentials = dict(client_id="", client_secret="")
             self.cache_credentials(empty_credentials)
             raise RuntimeError(f"Created empty {self.AUTH_CACHE}, please fill in")
 
         credentials = dict()
         credentials["client_id"] = auth_cache.get("credentials", "client_id")
         credentials["client_secret"] = auth_cache.get("credentials", "client_secret")
-        credentials["refresh_token"] = auth_cache.get("credentials", "refresh_token", fallback=None)
+        credentials["refresh_token"] = auth_cache.get(
+            "credentials", "refresh_token", fallback=None
+        )
 
         data = self.authenticate(credentials)
 
@@ -79,8 +80,10 @@ class ImgurClient:
 
     def authorize(self, client_id, client_secret):
         print("- launching browser to authorize application access")
-        url = f"{self.API_ROOT}/oauth2/authorize?client_id={client_id}&response_type=pin"
-        exec(f"xdg-open \'{url}\'")
+        url = (
+            f"{self.API_ROOT}/oauth2/authorize?client_id={client_id}&response_type=pin"
+        )
+        exec(f"xdg-open '{url}'")
 
         pin = input("Enter PIN code:")
 
@@ -119,7 +122,7 @@ class ImgurClient:
             accees_data = self.get_access_token(credentials)
         return accees_data
 
-    def api_get(self, api, params=None, data = None):
+    def api_get(self, api, params=None, data=None):
         url = f"{self.API_V3}/{api}"
 
         response = requests.get(url, params, data=data, headers=self.auth_headers)

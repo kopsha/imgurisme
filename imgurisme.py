@@ -15,7 +15,7 @@ def authenticate(username, use_credentials, config):
     client = ImgurClient(**use_credentials)
 
     # Authorization flow, pin example (see docs for other auth types)
-    authorization_url = client.get_auth_url('pin')
+    authorization_url = client.get_auth_url("pin")
 
     print("Go to the following URL: {0}".format(authorization_url))
 
@@ -23,14 +23,14 @@ def authenticate(username, use_credentials, config):
     pin = input("Enter pin code:")
 
     # ... redirect user to `authorization_url`, obtain pin (or code or token) ...
-    credentials = client.authorize(pin, 'pin')
-    client.set_user_auth(credentials['access_token'], credentials['refresh_token'])
+    credentials = client.authorize(pin, "pin")
+    client.set_user_auth(credentials["access_token"], credentials["refresh_token"])
 
     print(f"  .. caching {username} credentials")
     with open("auth_cache.ini", "w") as auth_cache:
         config["credentials"]["username"] = username
-        config["credentials"]["access_token"] = credentials['access_token']
-        config["credentials"]["refresh_token"] = credentials['refresh_token']
+        config["credentials"]["access_token"] = credentials["access_token"]
+        config["credentials"]["refresh_token"] = credentials["refresh_token"]
         config.write(auth_cache)
         print("saved to cache")
 
@@ -77,7 +77,9 @@ def sync_user_gallery(client: ImgurClient, username):
     repo_folder = os.path.join(home_folder, "Pictures", "imgurisme")
 
     print(f"- scanning {repo_folder} ..", end="")
-    local_images = {filename for filename in os.listdir(repo_folder) if IS_IMAGE.match(filename)}
+    local_images = {
+        filename for filename in os.listdir(repo_folder) if IS_IMAGE.match(filename)
+    }
     print(f". found {len(local_images)} images")
 
     print(f"- scanning {username} repository ..", end="")
@@ -127,6 +129,6 @@ if __name__ == "__main__":
         tags=["like-it-or-not"],
         is_album=False,
     )
-    response = client.make_request('POST', 'post/v1/posts/dCXBCjI/share', data=data)
+    response = client.make_request("POST", "post/v1/posts/dCXBCjI/share", data=data)
 
     print(f"{response=}")
