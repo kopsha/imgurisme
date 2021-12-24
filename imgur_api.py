@@ -16,9 +16,10 @@ def exec(command):
 
 
 class ImmutableData(dict):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__dict__ = self
+    """Read only attribute dictionary"""
+
+    def __getattr__(self, attr):
+        return self[attr]
 
     def __hash__(self):
         return id(self)
@@ -26,6 +27,8 @@ class ImmutableData(dict):
     def _immutable_error(self, *args, **kws):
         raise TypeError("Cannot modify immutable data")
 
+    __delete__ = _immutable_error
+    __setattr__ = _immutable_error
     __setitem__ = _immutable_error
     __delitem__ = _immutable_error
     clear = _immutable_error
@@ -154,9 +157,10 @@ class ImgurClient:
 if __name__ == "__main__":
     client = ImgurClient()
 
-    data = client.me()
-    print(type(data), data)
+    user = client.me()
+    print(user.id, user.url, user.reputation_name, user.reputation)
 
-    data = client.list_submissions()
-    for i, img in enumerate(data):
-        print(i, img.title, img.views, img.points)
+
+    submissions = client.list_submissions()
+    for i, img in enumerate(submissions):
+        print(i, img.title, img.views, img.points, img.link)
