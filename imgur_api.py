@@ -15,6 +15,27 @@ def exec(command):
     return result.stdout.decode("utf-8").strip()
 
 
+class ImmutableData(dict):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__ = self
+
+    def __hash__(self):
+        return id(self)
+
+    def _immutable_error(self, *args, **kws):
+        raise TypeError('Cannot modify immutable data')
+
+    __setitem__ = _immutable_error
+    __delitem__ = _immutable_error
+    clear       = _immutable_error
+    update      = _immutable_error
+    setdefault  = _immutable_error
+    pop         = _immutable_error
+    popitem     = _immutable_error
+
+
 class ImgurClient:
     """Yet another Imgur client, python this time"""
 
@@ -23,6 +44,8 @@ class ImgurClient:
     AUTH_CACHE = "auth_cache.ini"
 
     def __init__(self):
+        """Tries to read refresh token from auth cache"""
+
         if os.path.isfile(self.AUTH_CACHE):
             auth_cache = configparser.ConfigParser()
             auth_cache.read(self.AUTH_CACHE)
@@ -55,25 +78,25 @@ class ImgurClient:
             auth_cache.write(storage)
 
     def authorize(self, client_id, client_secret):
-        route = "oauth2/authorize"
         print("- launching browser to authorize application access")
-        url = f"{self.API_ROOT}/{route}?client_id={client_id}&response_type=pin"
+        url = f"{self.API_ROOT}/oauth2/authorize?client_id={client_id}&response_type=pin"
         exec(f"xdg-open \'{url}\'")
 
         pin = input("Enter PIN code:")
+
         route = "oauth2/token"
         url = f"{self.API_ROOT}/{route}"
-        params = dict(
+        payload = dict(
             client_id=client_id,
             client_secret=client_secret,
             grant_type="pin",
             pin=pin,
         )
-        response = requests.post(url, params)
 
-        assert response.status_code == 200
-        access_data = response.json()
-        return access_data
+        response = requests.post(url, payload)
+
+        response.raise_for_status()
+        return response.json()
 
     def get_access_token(self, credentials):
         route = "oauth2/token"
@@ -82,11 +105,11 @@ class ImgurClient:
             grant_type="refresh_token",
         )
         url = f"{self.API_ROOT}/{route}"
+
         response = requests.post(url, payload)
 
-        assert response.status_code == 200
-        access_data = response.json()
-        return access_data
+        response.raise_for_status()
+        return response.json()
 
     def authenticate(self, credentials):
         if credentials["refresh_token"] is None:
@@ -94,18 +117,43 @@ class ImgurClient:
             accees_data = self.authorize(**credentials)
         else:
             accees_data = self.get_access_token(credentials)
-
         return accees_data
 
-    def me(self):
-        route = "account"
-        url = f"{self.API_V3}/{route}/{self.username}"
-        response = requests.get(url, headers=self.auth_headers)
+    def api_get(self, api, params=None, data = None):
+        url = f"{self.API_V3}/{api}"
+
+        response = requests.get(url, params, data=data, headers=self.auth_headers)
+
         response.raise_for_status()
-        return response.json()
+        response_data = response.json()["data"]
+
+        if isinstance(response_data, dict):
+            return ImmutableData(response_data)
+        elif isinstance(response_data, list):
+            return (ImmutableData(item) for item in response_data)
+
+        # a bit unexpected, but hey... let's take it
+        return response_data
+
+    def me(self):
+        api_url = f"account/{self.username}"
+        return self.api_get(api_url)
+
+    def list_submissions(self, page=0, sort="newest"):
+        """
+        Return the images a user has submitted to the gallery.
+        sort: newest (default), oldest, worst, best.
+        """
+        api_url = f"account/{self.username}/submissions/{page}/{sort}"
+        return self.api_get(api_url)
+
 
 if __name__ == "__main__":
     client = ImgurClient()
-    data = client.me()
 
-    print(f"{data=}")
+    data = client.me()
+    print(type(data), data)
+
+    data = client.list_submissions()
+    for i, img in enumerate(data):
+        print(i, img.title, img.views, img.points)
