@@ -1,11 +1,8 @@
 import configparser
-import subprocess
-import re
 import os
+import subprocess
+
 import requests
-
-
-IS_IMAGE = re.compile("^.+\.(png|jpg|jpeg|gif)$", re.IGNORECASE)
 
 
 def exec(command):
@@ -41,15 +38,21 @@ class ImgurClient:
         credentials["refresh_token"] = auth_cache.get("credentials", "refresh_token", fallback=None)
 
         data = self.authenticate(credentials)
+
         self.token = data["access_token"]
-        assert self.token
+        self.username = data["account_username"]
+        self.account_id = data["account_id"]
+        self.auth_headers = dict(Authorization=f"Bearer {self.token}")
+
+        credentials["refresh_token"] = data.pop("refresh_token")
+        self.cache_credentials(credentials)
+        print(f"- authenticated as {self.username}")
 
     def cache_credentials(self, credentials):
         with open(self.AUTH_CACHE, "w") as storage:
             auth_cache = configparser.ConfigParser()
             auth_cache["credentials"] = credentials
             auth_cache.write(storage)
-            print(f"- saved authorisation to {self.AUTH_CACHE}")
 
     def authorize(self, client_id, client_secret):
         route = "oauth2/authorize"
@@ -92,11 +95,17 @@ class ImgurClient:
         else:
             accees_data = self.get_access_token(credentials)
 
-        credentials["refresh_token"] = accees_data.pop("refresh_token")
-        self.cache_credentials(credentials)
-
         return accees_data
 
+    def me(self):
+        route = "account"
+        url = f"{self.API_V3}/{route}/{self.username}"
+        response = requests.get(url, headers=self.auth_headers)
+        response.raise_for_status()
+        return response.json()
 
 if __name__ == "__main__":
     client = ImgurClient()
+    data = client.me()
+
+    print(f"{data=}")
