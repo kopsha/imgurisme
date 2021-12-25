@@ -75,7 +75,7 @@ def spell_two_digits_number(number):
     if ones:
         words.append(spell_usual_number(ones))
 
-    return " ".join(words)
+    return "-".join(words)
 
 
 def spell_number_group(number):
@@ -88,6 +88,8 @@ def spell_number_group(number):
     words = list()
     if hundreds:
         words.append(f"{spell_usual_number(hundreds)} hundred")
+        if two_digits:
+            words.append("and")
     if two_digits:
         words.append(spell_two_digits_number(two_digits))
 
@@ -111,13 +113,15 @@ def pluralize(noun, quantity):
 def spell_number(number):
     words = list()
     group_index = 0
+    subgroup = 0
 
     while number is not None:
         subgroup = number % 1000
 
         if group_index:
             limit = min(group_index, len(GROUP_SUFFIXES) - 1)
-            words.append(pluralize(GROUP_SUFFIXES[limit], subgroup))
+            words.append(GROUP_SUFFIXES[limit])
+
         words.append(spell_number_group(subgroup))
 
         number = number // 1000
@@ -129,8 +133,11 @@ def spell_number(number):
 
 
 if __name__ == "__main__":
-    for x in [21, 1013, 29, 1_999, 1_002_001]:
+    for x in range(35):
         print(x, "->", spell_number(x))
+
+    for x in [21, 1013, 29, 1_999, 1_002_001, 1_392_471, 5_629_296]:
+        print(f"{x:,}", "->", spell_number(x))
 
     words = ["society", "bear", "city", "bus"]
     for word in words:
