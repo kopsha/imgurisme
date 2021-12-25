@@ -410,6 +410,22 @@ def load_all_words():
     load_trigger_words()
 
 
+def make_promise():
+
+    action = random.choice(VERBS_FLAT)
+    action_ing = random.choice(VERBS[action]["present_participle"])
+    subject = random.choice(NOUNS)
+    characteristic = random.choice(ADJECTIVES_FLAT)
+
+    forms = [
+        f"that will {action} your {characteristic} {subject}",
+        f"for {action_ing} your {characteristic} {subject}",
+        f"to {action} your {characteristic} {subject}",
+        f"you cannot {action}",
+    ]
+
+    return random.choice(forms)
+
 def make_headline(something):
     """
     Generate a random headline:
@@ -422,9 +438,9 @@ def make_headline(something):
     magic_numbers = [1, 2, 3, 5, 8, 13, 21]
 
     number = random.choice(magic_numbers)
-    adjective = random.choice(ADJECTIVES_FLAT)
     keyword = pluralize(random.choice(NOUNS), number)
-    promise = f"that will {random.choice(VERBS_FLAT)} your {random.choice(ADJECTIVES_FLAT)} {random.choice(NOUNS)}"
+    adjective = random.choice(ADJECTIVES_FLAT)
+    promise = make_promise()
 
     words = [
         spell_number(number),

@@ -105,7 +105,7 @@ def pluralize(noun, quantity):
             return noun + "es"
         else:
             return noun + "s"
-    return ""
+    return noun
 
 
 def spell_number(number):
