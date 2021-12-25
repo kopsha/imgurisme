@@ -1,8 +1,12 @@
+import base64
 import configparser
 import os
+import re
 import subprocess
 
 import requests
+
+import chatty_patty
 
 
 def exec(command):
@@ -44,6 +48,7 @@ class ImgurClient:
     API_ROOT = "https://api.imgur.com"
     API_V3 = "https://api.imgur.com/3"
     AUTH_CACHE = "auth_cache.ini"
+    ANY_NON_WORD = re.compile("[\W_\s]+")
 
     def __init__(self):
         """
@@ -114,7 +119,7 @@ class ImgurClient:
         return response.json()
 
     def get_access_token(self, credentials):
-        """Having a refresh token, gets an access_token """
+        """Having a refresh token, gets an access_token"""
         route = "oauth2/token"
         payload = dict(
             **credentials,
@@ -158,6 +163,28 @@ class ImgurClient:
         # a bit unexpected, but hey... let's take it
         return response_data
 
+    def api_post(self, api, params=None, data=None):
+        """
+        Runs a GET request to imgur api.
+        On success it returns an ImmutableData object, to allow accessing
+        dictionary response keys as attributes.
+        On failure it raises apropriate HttpErrors.
+        """
+        url = f"{self.API_V3}/{api}"
+
+        response = requests.post(url, params, data=data, headers=self.auth_headers)
+
+        response.raise_for_status()
+        response_data = response.json()["data"]
+
+        if isinstance(response_data, dict):
+            return ImmutableData(response_data)
+        elif isinstance(response_data, list):
+            return (ImmutableData(item) for item in response_data)
+
+        # a bit unexpected, but hey... let's take it
+        return response_data
+
     def me(self):
         """Get current user details"""
         api_url = f"account/{self.username}"
@@ -165,7 +192,7 @@ class ImgurClient:
 
     def list_submissions(self, page=0, sort="newest"):
         """
-        Return all image submissions to the gallery.
+        Gets all image submissions to the gallery.
 
         Keyword arguments:
         page -- which page to retrieve, for larger results (default: 0)
@@ -175,21 +202,42 @@ class ImgurClient:
         return self.api_get(api_url)
 
     def list_images(self):
+        """Gets all uploaded images"""
         api_url = "account/me/images"
         return self.api_get(api_url)
 
     def get_image(self, image_id, username=None):
+        """Having an image id it grabs all image details"""
         if username is None:
             username = "me"
         api_url = f"account/{username}/image/{image_id}"
         return self.api_get(api_url)
+
+    def upload_image(self, filepath):
+        """upload image from path, will load the entire file in memory, lame"""
+
+        with open(filepath, "rb") as file:
+            content = base64.b64encode(file.read())
+
+        filename = os.path.basename(filepath)
+        name, ext = os.path.splitext(filename)
+        title = re.sub(self.ANY_NON_WORD, " ", name).strip().title()
+        payload = dict(
+            image=content,
+            type="base64",
+            name=filename,
+            title=title,
+            description=chatty_patty.describe(title),
+        )
+
+        return self.api_post(api="image", data=payload)
+
 
 if __name__ == "__main__":
     client = ImgurClient()
 
     user = client.me()
     print(user.id, user.url, user.reputation_name, user.reputation)
-
 
     submissions = client.list_submissions()
     for i, img in enumerate(submissions):
