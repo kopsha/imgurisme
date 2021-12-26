@@ -61,12 +61,12 @@ def sync_user_gallery(client: ImgurClient):
     if unpublished_images:
         # pick a single image and publish it
         lucky_id = random.choice(unpublished_images)
-        lucky_title = chatty_patty.make_headline(None)
+        lucky_title = chatty_patty.make_headline()
         description = " ".join(
             [
-                chatty_patty.make_sentence().capitalize(),
-                chatty_patty.make_sentence().capitalize(),
-                chatty_patty.make_sentence().capitalize(),
+                chatty_patty.make_sentence(),
+                chatty_patty.make_sentence(),
+                chatty_patty.make_sentence(),
                 "Faking it real hard, hopefully we actually make it someday and",
                 chatty_patty.make_promise() + ".",
             ]

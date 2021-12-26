@@ -413,14 +413,15 @@ def make_promise():
         f"that will {action} your {characteristic} {subject}",
         f"for {action_ing} your {characteristic} {subject}",
         f"to {action} your {characteristic} {subject}",
-        f"you cannot {action} the {characteristic} {subject} enough",
-        f"would you {action} the {characteristic} {subject} {action}",
+        f"you cannot {action} enough",
+        f"you wont {action} easily",
+        f"you must {action} right now",
     ]
 
     return random.choice(forms)
 
 
-def make_headline(something):
+def make_headline():
     """
     Generate a random headline:
     Number + trigger word + adjective + keyword + promise
@@ -469,12 +470,26 @@ def make_sentence():
         f"{trait} {subject} will never {action} the {characteristic} {object}, no matter what!",
     ]
 
-    return random.choice(forms)
+    sentence = random.choice(forms).capitalize()
+    return sentence
 
 
 if __name__ == "__main__":
     load_all_words()
 
-    for i in range(13):
-        head = make_headline("anything")
+    print("Some headlines:")
+    for i in range(5):
+        head = make_headline()
         print("\t", head)
+
+
+    print("Some promises:")
+    for i in range(5):
+        prom = make_promise()
+        print("\t", prom)
+
+
+    print("Some sentences:")
+    for i in range(5):
+        sentence = make_sentence()
+        print("\t", sentence)
