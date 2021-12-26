@@ -58,22 +58,23 @@ def sync_user_gallery(client: ImgurClient):
     # remote_images = {img.id: img for img in client.list_images() if img.id not in posts}
     unpublished_images = [img.id for img in client.list_images() if img.id not in posts]
 
-    # pick a single image and publish it
-    lucky_id = random.choice(unpublished_images)
-    lucky_title = chatty_patty.make_headline(None)
-    description = " ".join(
-        [
-            chatty_patty.make_sentence().capitalize(),
-            chatty_patty.make_sentence().capitalize(),
-            chatty_patty.make_sentence().capitalize(),
-            "Faking it real hard, hopefully we actually make it someday and",
-            chatty_patty.make_promise() + ".",
-        ]
-    )
-    client.update_image(lucky_id, lucky_title, description)
-    client.share_image(lucky_id, lucky_title, description, tags=["nothing-matters"])
-    print(f"- created a new post {lucky_title} ({lucky_id})")
-    print(f"> {description}")
+    if unpublished_images:
+        # pick a single image and publish it
+        lucky_id = random.choice(unpublished_images)
+        lucky_title = chatty_patty.make_headline(None)
+        description = " ".join(
+            [
+                chatty_patty.make_sentence().capitalize(),
+                chatty_patty.make_sentence().capitalize(),
+                chatty_patty.make_sentence().capitalize(),
+                "Faking it real hard, hopefully we actually make it someday and",
+                chatty_patty.make_promise() + ".",
+            ]
+        )
+        client.update_image(lucky_id, lucky_title, description)
+        client.share_image(lucky_id, lucky_title, description, tags=["nothingelsematters"])
+        print(f"- created a new post {lucky_title} ({lucky_id})")
+        print(f"> {description}")
 
 
 if __name__ == "__main__":
