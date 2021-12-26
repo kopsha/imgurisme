@@ -278,7 +278,6 @@ class ImgurClient:
             terms=1,
             tags=",".join(tags) if tags else None,
         )
-        print(payload)
         return self.api_post(api_url, data=payload)
 
     def download_image(self, url, destination):
