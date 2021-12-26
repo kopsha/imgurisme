@@ -61,15 +61,19 @@ def sync_user_gallery(client: ImgurClient):
     # pick a single image and publish it
     lucky_id = random.choice(unpublished_images)
     lucky_title = chatty_patty.make_headline(None)
-    description = " ".join([
-        chatty_patty.make_sentence(),
-        chatty_patty.make_sentence(),
-        chatty_patty.make_sentence(),
-        "Fake it 'till we make it, aren't we?",
-    ])
-    print("should create post for", lucky_id, lucky_title, description)
-    # client.update_image(lucky_id, lucky_title, description)
-    # client.share_image(lucky_id, lucky_title, description, tags=["nothing-matters"])
+    description = " ".join(
+        [
+            chatty_patty.make_sentence().capitalize(),
+            chatty_patty.make_sentence().capitalize(),
+            chatty_patty.make_sentence().capitalize(),
+            "Faking it real hard, hopefully we actually make it someday and",
+            chatty_patty.make_promise() + ".",
+        ]
+    )
+    client.update_image(lucky_id, lucky_title, description)
+    client.share_image(lucky_id, lucky_title, description, tags=["nothing-matters"])
+    print(f"- created a new post {lucky_title} ({lucky_id})")
+    print(f"> {description}")
 
 
 if __name__ == "__main__":

@@ -125,7 +125,6 @@ TRIGGER_WORDS = [
     "bizarre",
     "essential",
     "incredible",
-
     # Health and hope
     "boost",
     "cure",
@@ -137,7 +136,6 @@ TRIGGER_WORDS = [
     "empower",
     "overcome",
     "undo",
-
     # Anger and frustration
     "Arrogant",
     "Cruel",
@@ -149,7 +147,6 @@ TRIGGER_WORDS = [
     "Pointless",
     "Temporary fix",
     "Tired",
-
     # Betrayal and Revenge
     "Burned",
     "Conspiracy",
@@ -161,7 +158,6 @@ TRIGGER_WORDS = [
     "Reclaim",
     "Turn the tables",
     "Vindication",
-
     # The Forbidden and the Powerless
     "Banned",
     "Controversial",
@@ -173,7 +169,6 @@ TRIGGER_WORDS = [
     "Helpless",
     "Paralyzed",
     "Surrender",
-
     # Passion and Urgency
     "Blissful",
     "Delightful",
@@ -185,14 +180,12 @@ TRIGGER_WORDS = [
     "Limited",
     "Seize",
     "While it's fresh in your mind",
-
     # Attraction
     "Delicious",
     "Exceptional",
     "Satisfaction guaranteed",
     "Easy",
     "Unparalleled",
-
     # Love
     "Deep",
     "Natural",
@@ -327,7 +320,6 @@ Emotional power words #8: Anticipation
 """
 
 
-
 NOUNS = None
 # NO FLAT?
 VERBS = None
@@ -338,6 +330,7 @@ ADJECTIVES_FLAT = None
 TRIGGER_ADJECTIVES = list()
 TRIGGER_NOUNS = list()
 TRIGGER_VERBS = list()
+
 
 def load_nouns():
     global NOUNS
@@ -384,7 +377,6 @@ def load_trigger_words():
     global TRIGGER_ADJECTIVES
     global TRIGGER_VERBS
 
-
     nouns = set(NOUNS)
 
     adjectives = set(ADJECTIVES_FLAT)
@@ -421,7 +413,8 @@ def make_promise():
         f"that will {action} your {characteristic} {subject}",
         f"for {action_ing} your {characteristic} {subject}",
         f"to {action} your {characteristic} {subject}",
-        f"you cannot {action}",
+        f"you cannot {action} the {characteristic} {subject} enough",
+        f"would you {action} the {characteristic} {subject} {action}",
     ]
 
     return random.choice(forms)
@@ -436,7 +429,7 @@ def make_headline(something):
     assert TRIGGER_NOUNS
     assert TRIGGER_VERBS
 
-    magic_numbers = [1, 2, 3, 5, 8, 13, 21]
+    magic_numbers = range(1, 22)
 
     number = random.choice(magic_numbers)
     keyword = pluralize(random.choice(NOUNS), number)
@@ -462,16 +455,17 @@ def make_sentence():
     action_ing = random.choice(VERBS[action]["present_participle"])
     characteristic = random.choice(ADJECTIVES_FLAT)
     object = random.choice(NOUNS)
-    magic_numbers = [1, 2, 3, 5, 8, 13, 21]
+    magic_numbers = range(1, 22)
     number = random.choice(magic_numbers)
 
     forms = [
         f"somtimes the {trait} {subject} can {action} most {characteristic} {pluralize(object, 2)}.",
         f"{trait} {subject} can {action} almost any {characteristic} {object}.",
         f"quite often {spell_number(number)} {trait} {subject} will {action} {characteristic} {object}.",
-        f"can you imagine {spell_number(number)} {trait} {subject} {action_ing} {characteristic} {object}?",
-        f"who could {action} {trait} {subject} {action_ing} without {characteristic} {object}?",
-        f"I bet you cannot {action} {trait} {subject}, not even the {characteristic} {object}.",
+        f"imagine this, {spell_number(number)} {trait} {subject} {action_ing} one {characteristic} {object}.",
+        f"while {spell_number(number)} {trait} {subject} are {action_ing} then {characteristic} {object}...",
+        f"who could {action} the {trait} {subject} without {characteristic} {object}?",
+        f"I bet you cannot {action} the {trait} {subject}, not even the {characteristic} {object}.",
         f"{trait} {subject} will never {action} the {characteristic} {object}, no matter what!",
     ]
 
