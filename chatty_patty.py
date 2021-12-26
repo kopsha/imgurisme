@@ -473,6 +473,12 @@ def make_sentence():
     sentence = random.choice(forms).capitalize()
     return sentence
 
+def make_tag():
+    action = random.choice(VERBS_FLAT)
+    action_ing = random.choice(VERBS[action]["present_participle"])
+    characteristic = random.choice(ADJECTIVES_FLAT)
+    return "".join([characteristic, action_ing])
+
 
 if __name__ == "__main__":
     load_all_words()

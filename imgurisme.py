@@ -70,13 +70,18 @@ def sync_user_gallery(client: ImgurClient):
                 chatty_patty.make_promise() + ".",
             ]
         )
+        tags = [
+            chatty_patty.make_tag(),
+            chatty_patty.make_tag(),
+        ]
         client.update_image(lucky_id, lucky_title, description)
-        client.share_image(lucky_id, lucky_title, description, tags=["fuckit,nothingmatters"])
-        print(f"- created a new post {lucky_title} ({lucky_id})")
+        client.share_image(lucky_id, lucky_title, description, tags=tags)
+        print(f"- created a new post {lucky_title} ({lucky_id}) / {tags}")
         print(f"> {description}")
 
 
 if __name__ == "__main__":
+    random.seed()
     chatty_patty.load_all_words()
     client = ImgurClient()
     sync_user_gallery(client)
