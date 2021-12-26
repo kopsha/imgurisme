@@ -6,7 +6,7 @@ import shutil
 import subprocess
 
 import requests
-
+from immutable_objects import ImmutableData
 
 def exec(command):
     """runs shell command and capture the output"""
@@ -16,29 +16,6 @@ def exec(command):
         raise RuntimeError(result.stderr.decode("utf-8").strip())
 
     return result.stdout.decode("utf-8").strip()
-
-
-class ImmutableData(dict):
-    """Read only attribute dictionary"""
-
-    def __getattr__(self, attr):
-        return self[attr]
-
-    def __hash__(self):
-        return id(self)
-
-    def _immutable_error(self, *args, **kws):
-        raise TypeError("Cannot modify immutable data")
-
-    __delete__ = _immutable_error
-    __setattr__ = _immutable_error
-    __setitem__ = _immutable_error
-    __delitem__ = _immutable_error
-    clear = _immutable_error
-    update = _immutable_error
-    setdefault = _immutable_error
-    pop = _immutable_error
-    popitem = _immutable_error
 
 
 class ImgurClient:

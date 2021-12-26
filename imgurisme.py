@@ -24,7 +24,6 @@ def sync_user_gallery(client: ImgurClient):
     print(f"- scanning {client.username} repository ..", end="")
     remote_images = dict()
     images = client.list_images()
-    print(images)
     for image in images:
         filename = os.path.basename(image.link)
         remote_images[filename] = image
@@ -72,7 +71,7 @@ def sync_user_gallery(client: ImgurClient):
             ]
         )
         client.update_image(lucky_id, lucky_title, description)
-        client.share_image(lucky_id, lucky_title, description, tags=["nothingelsematters"])
+        client.share_image(lucky_id, lucky_title, description, tags=["fuckit,nothingmatters"])
         print(f"- created a new post {lucky_title} ({lucky_id})")
         print(f"> {description}")
 
