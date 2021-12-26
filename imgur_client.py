@@ -184,12 +184,34 @@ class ImgurClient:
         # a bit unexpected, but hey... let's take it
         return response_data
 
+    def api_delete(self, api, data=None):
+        """
+        Runs a GET request to imgur api.
+        On success it returns an ImmutableData object, to allow accessing
+        dictionary response keys as attributes.
+        On failure it raises apropriate HttpErrors.
+        """
+        url = f"{self.API_V3}/{api}"
+
+        response = requests.delete(url, data=data, headers=self.auth_headers)
+
+        response.raise_for_status()
+        response_data = response.json()["data"]
+
+        if isinstance(response_data, dict):
+            return ImmutableData(response_data)
+        elif isinstance(response_data, list):
+            return (ImmutableData(item) for item in response_data)
+
+        # a bit unexpected, but hey... let's take it
+        return response_data
+
     def me(self):
         """Get current user details"""
         api_url = f"account/{self.username}"
         return self.api_get(api_url)
 
-    def list_submissions(self, page=0, sort="newest"):
+    def list_posts(self, page=0, sort="newest"):
         """
         Gets all image submissions to the gallery.
 
@@ -199,6 +221,10 @@ class ImgurClient:
         """
         api_url = f"account/{self.username}/submissions/{page}/{sort}"
         return self.api_get(api_url)
+
+    def delete_album(self, album_id):
+        api_url = f"album/{album_id}"
+        return self.api_delete(api_url, album_id)
 
     def list_images(self):
         """Gets all uploaded images"""
@@ -220,7 +246,9 @@ class ImgurClient:
 
         filename = os.path.basename(filepath)
         name, ext = os.path.splitext(filename)
-        title = re.sub(self.ANY_NON_WORD, " ", name).strip().title()
+        if title is None:
+            title = re.sub(self.ANY_NON_WORD, " ", name).strip().title()
+
         payload = dict(
             image=content,
             type="base64",
@@ -230,6 +258,28 @@ class ImgurClient:
         )
 
         return self.api_post(api="image", data=payload)
+
+    def update_image(self, image_id, title, description):
+        assert title
+        assert description
+        api_url = f"image/{image_id}"
+        payload = dict(
+            title=title,
+            description=description,
+        )
+        self.api_post(api_url, data=payload)
+
+    def share_image(self, image_id, title, description, tags=None):
+        assert title
+        api_url = f"gallery/image/{image_id}"
+        payload = dict(
+            title=title,
+            description=description,
+            terms=1,
+            tags=",".join(tags) if tags else None,
+        )
+        print(payload)
+        return self.api_post(api_url, data=payload)
 
     def download_image(self, url, destination):
         with requests.get(url, stream=True) as stream:
@@ -243,7 +293,7 @@ if __name__ == "__main__":
     user = client.me()
     print(user.id, user.url, user.reputation_name, user.reputation)
 
-    submissions = client.list_submissions()
+    submissions = client.list_posts()
     for i, img in enumerate(submissions):
         print(i, img.title, img.views, img.points, img.link)
 

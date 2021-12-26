@@ -426,6 +426,7 @@ def make_promise():
 
     return random.choice(forms)
 
+
 def make_headline(something):
     """
     Generate a random headline:
@@ -451,6 +452,30 @@ def make_headline(something):
 
     headline = " ".join(words)
     return headline.capitalize()
+
+
+def make_sentence():
+
+    subject = random.choice(NOUNS)
+    trait = random.choice(ADJECTIVES_FLAT)
+    action = random.choice(VERBS_FLAT)
+    action_ing = random.choice(VERBS[action]["present_participle"])
+    characteristic = random.choice(ADJECTIVES_FLAT)
+    object = random.choice(NOUNS)
+    magic_numbers = [1, 2, 3, 5, 8, 13, 21]
+    number = random.choice(magic_numbers)
+
+    forms = [
+        f"somtimes the {trait} {subject} can {action} most {characteristic} {pluralize(object, 2)}.",
+        f"{trait} {subject} can {action} almost any {characteristic} {object}.",
+        f"quite often {spell_number(number)} {trait} {subject} will {action} {characteristic} {object}.",
+        f"can you imagine {spell_number(number)} {trait} {subject} {action_ing} {characteristic} {object}?",
+        f"who could {action} {trait} {subject} {action_ing} without {characteristic} {object}?",
+        f"I bet you cannot {action} {trait} {subject}, not even the {characteristic} {object}.",
+        f"{trait} {subject} will never {action} the {characteristic} {object}, no matter what!",
+    ]
+
+    return random.choice(forms)
 
 
 if __name__ == "__main__":
