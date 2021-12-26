@@ -2,11 +2,10 @@ import base64
 import configparser
 import os
 import re
+import shutil
 import subprocess
 
 import requests
-
-import chatty_patty
 
 
 def exec(command):
@@ -163,7 +162,7 @@ class ImgurClient:
         # a bit unexpected, but hey... let's take it
         return response_data
 
-    def api_post(self, api, params=None, data=None):
+    def api_post(self, api, data=None):
         """
         Runs a GET request to imgur api.
         On success it returns an ImmutableData object, to allow accessing
@@ -172,7 +171,7 @@ class ImgurClient:
         """
         url = f"{self.API_V3}/{api}"
 
-        response = requests.post(url, params, data=data, headers=self.auth_headers)
+        response = requests.post(url, data=data, headers=self.auth_headers)
 
         response.raise_for_status()
         response_data = response.json()["data"]
@@ -213,7 +212,7 @@ class ImgurClient:
         api_url = f"account/{username}/image/{image_id}"
         return self.api_get(api_url)
 
-    def upload_image(self, filepath):
+    def upload_image(self, filepath, title=None, description=None):
         """upload image from path, will load the entire file in memory, lame"""
 
         with open(filepath, "rb") as file:
@@ -227,10 +226,15 @@ class ImgurClient:
             type="base64",
             name=filename,
             title=title,
-            description=chatty_patty.describe(title),
+            description=description,
         )
 
         return self.api_post(api="image", data=payload)
+
+    def download_image(self, url, destination):
+        with requests.get(url, stream=True) as stream:
+            with open(destination, "wb") as output:
+                shutil.copyfileobj(stream.raw, output)
 
 
 if __name__ == "__main__":
