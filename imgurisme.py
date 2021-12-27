@@ -12,7 +12,7 @@ IS_IMAGE = re.compile("^.+\.(png|jpg|jpeg|gif)$", re.IGNORECASE)
 def sync_user_gallery(client: ImgurClient):
     """download user submissions, to image repository"""
 
-    home_folder = os.path.expanduser("~")
+    home_folder = "/home/nick"
     repo_folder = os.path.join(home_folder, "Pictures", "imgurisme")
 
     print(f"- scanning {repo_folder} ..", end="")
@@ -56,6 +56,7 @@ def sync_user_gallery(client: ImgurClient):
     posts = {post.id: post for post in client.list_posts()}
     # remote_images = {img.id: img for img in client.list_images() if img.id not in posts}
     unpublished_images = [img.id for img in client.list_images() if img.id not in posts]
+    print(f"- found {len(unpublished_images)} unpublished images")
 
     if unpublished_images:
         # pick a single image and publish it
